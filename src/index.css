@@ -1,13 +1,566 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #111318;
+  --surface:      #1c1f26;
+  --card:         #252830;
+  --card-hover:   #2e3240;
+  --border:       #353945;
+  --accent:       #c8973e;
+  --accent-dim:   #9e7530;
+  --text:         #e8e4d8;
+  --text-muted:   #9590a0;
+  --text-light:   #b8b4a8;
+  --success:      #4ade80;
+  --danger:       #f87171;
+  --warning:      #fbbf24;
+  --info:         #60a5fa;
+  --radius:       8px;
+  --radius-lg:    14px;
+  --font:         -apple-system, 'Segoe UI', system-ui, sans-serif;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
 }
+
+/* ── Layout ─────────────────────────────────────────────────────────────── */
+
+.page {
+  min-height: 100vh;
+  padding: 2rem 1rem;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── Typography ──────────────────────────────────────────────────────────── */
+
+h1 { font-size: 2rem; font-weight: 700; color: var(--accent); letter-spacing: .03em; }
+h2 { font-size: 1.35rem; font-weight: 600; color: var(--text); }
+h3 { font-size: 1rem; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: .08em; }
+p  { color: var(--text-light); }
+
+/* ── Cards ───────────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.card-sm {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .75rem 1rem;
+}
+
+.card-selectable {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.card-selectable:hover { background: var(--card-hover); border-color: var(--accent-dim); }
+.card-selectable.selected { border-color: var(--accent); background: var(--card-hover); }
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .55rem 1.25rem;
+  border: none;
+  border-radius: var(--radius);
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .15s, background .15s;
+  text-decoration: none;
+}
+.btn:disabled { opacity: .4; cursor: default; }
+
+.btn-primary  { background: var(--accent); color: #111; }
+.btn-primary:hover:not(:disabled) { background: var(--accent-dim); }
+
+.btn-ghost    { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+.btn-ghost:hover:not(:disabled) { color: var(--text); border-color: var(--text-muted); }
+
+.btn-danger   { background: var(--danger); color: #111; }
+.btn-danger:hover:not(:disabled) { opacity: .85; }
+
+.btn-sm { padding: .35rem .8rem; font-size: .8rem; }
+
+/* ── Form ────────────────────────────────────────────────────────────────── */
+
+.field { display: flex; flex-direction: column; gap: .4rem; }
+.field label { font-size: .8rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+
+.input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: .95rem;
+  padding: .5rem .75rem;
+  width: 100%;
+  transition: border-color .15s;
+}
+.input:focus { outline: none; border-color: var(--accent); }
+
+select.input { cursor: pointer; }
+
+/* ── Grids ───────────────────────────────────────────────────────────────── */
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: .75rem; }
+.grid-6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: .75rem; }
+
+@media (max-width: 700px) {
+  .grid-6 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: 1fr 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+}
+
+.flex { display: flex; align-items: center; }
+.gap-1 { gap: .5rem; }
+.gap-2 { gap: 1rem; }
+.gap-3 { gap: 1.5rem; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-col { display: flex; flex-direction: column; }
+
+/* ── Stat Box (Ability Scores) ───────────────────────────────────────────── */
+
+.stat-box {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: .6rem .5rem .5rem;
+  gap: .2rem;
+  position: relative;
+}
+.stat-box.has-bonus { border-color: var(--accent-dim); }
+
+.stat-label {
+  font-size: .65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.stat-modifier {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.stat-score {
+  font-size: .85rem;
+  color: var(--text-light);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: .1rem .35rem;
+  min-width: 2rem;
+  text-align: center;
+}
+
+/* ── Step Indicator ──────────────────────────────────────────────────────── */
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin-bottom: 2.5rem;
+}
+
+.step-indicator-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .35rem;
+  flex: 1;
+  position: relative;
+}
+
+.step-indicator-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: calc(50% + 14px);
+  right: calc(-50% + 14px);
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.step-indicator-item.done:not(:last-child)::after { background: var(--accent-dim); }
+
+.step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  z-index: 1;
+  transition: all .2s;
+}
+.step-indicator-item.active .step-dot  { border-color: var(--accent); color: var(--accent); background: var(--card); }
+.step-indicator-item.done .step-dot    { border-color: var(--accent); background: var(--accent); color: #111; }
+
+.step-name {
+  font-size: .7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.step-indicator-item.active .step-name { color: var(--accent); }
+
+/* ── Step Nav (bottom of creator) ────────────────────────────────────────── */
+
+.step-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Race / Class Grid ───────────────────────────────────────────────────── */
+
+.select-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: .75rem;
+  margin: 1rem 0;
+}
+
+.select-card {
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: .85rem .75rem;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color .15s, background .15s;
+}
+.select-card:hover { background: var(--card-hover); border-color: var(--accent-dim); }
+.select-card.selected { border-color: var(--accent); background: var(--card-hover); }
+.select-card .name { font-weight: 600; font-size: .9rem; color: var(--text); }
+.select-card .sub  { font-size: .75rem; color: var(--text-muted); margin-top: .2rem; }
+
+/* ── Detail Panel ────────────────────────────────────────────────────────── */
+
+.detail-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-top: 1rem;
+}
+
+.tag-list { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.tag {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: .2rem .65rem;
+  font-size: .75rem;
+  color: var(--text-light);
+}
+
+/* ── Ability Score Input ─────────────────────────────────────────────────── */
+
+.ability-input-box {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: .75rem .5rem;
+  gap: .3rem;
+}
+
+.ability-input-box label {
+  font-size: .65rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+
+.ability-input-box input {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-align: center;
+  width: 56px;
+  padding: .3rem;
+}
+.ability-input-box input:focus { outline: none; border-color: var(--accent); }
+
+.ability-input-box .modifier-hint {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.ability-input-box .bonus-hint {
+  font-size: .7rem;
+  color: var(--success);
+}
+
+/* ── Sheet Layout ────────────────────────────────────────────────────────── */
+
+.sheet-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.sheet-header h1 { font-size: 1.75rem; }
+
+.sheet-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1.5rem;
+  margin-top: .5rem;
+}
+
+.sheet-meta span {
+  font-size: .85rem;
+  color: var(--text-muted);
+}
+
+.sheet-meta strong { color: var(--text-light); }
+
+.sheet-columns {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .sheet-columns { grid-template-columns: 1fr; }
+}
+
+.sheet-section { margin-bottom: 1.25rem; }
+.sheet-section-title {
+  font-size: .7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  margin-bottom: .6rem;
+  padding-bottom: .4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Proficiency / Saving Throw Rows ─────────────────────────────────────── */
+
+.stat-row {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .3rem 0;
+  border-bottom: 1px solid var(--border);
+  font-size: .88rem;
+}
+.stat-row:last-child { border-bottom: none; }
+
+.prof-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+.prof-dot.proficient { background: var(--accent); border-color: var(--accent); }
+.prof-dot.expertise  { background: var(--success); border-color: var(--success); }
+
+.stat-row .bonus { font-weight: 700; color: var(--accent); min-width: 2.5rem; text-align: right; margin-left: auto; }
+.stat-row .row-label { color: var(--text-light); flex: 1; }
+.stat-row .ability-tag { font-size: .7rem; color: var(--text-muted); min-width: 2rem; }
+
+/* ── Combat Stats Boxes ──────────────────────────────────────────────────── */
+
+.combat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: .75rem;
+  margin-bottom: 1rem;
+}
+
+.combat-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .7rem .5rem;
+  text-align: center;
+}
+.combat-box .val { font-size: 1.4rem; font-weight: 700; color: var(--text); }
+.combat-box .lbl { font-size: .65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: .08em; margin-top: .15rem; }
+
+/* ── HP Tracker ──────────────────────────────────────────────────────────── */
+
+.hp-tracker {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.hp-display {
+  display: flex;
+  align-items: baseline;
+  gap: .4rem;
+  margin-bottom: .75rem;
+}
+.hp-current { font-size: 2.5rem; font-weight: 700; color: var(--text); line-height: 1; }
+.hp-sep     { font-size: 1.5rem; color: var(--text-muted); }
+.hp-max     { font-size: 1.25rem; color: var(--text-muted); }
+.hp-temp    { font-size: .85rem; color: var(--info); margin-left: .5rem; }
+
+.hp-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--border);
+  margin-bottom: .75rem;
+  overflow: hidden;
+}
+.hp-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--success);
+  transition: width .3s;
+}
+.hp-bar-fill.low    { background: var(--warning); }
+.hp-bar-fill.critical { background: var(--danger); }
+
+.hp-controls { display: flex; gap: .5rem; align-items: center; }
+.hp-controls input {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 1rem;
+  padding: .4rem .6rem;
+  width: 72px;
+  text-align: center;
+}
+.hp-controls input:focus { outline: none; border-color: var(--accent); }
+
+/* ── Death Saves ─────────────────────────────────────────────────────────── */
+
+.death-saves {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  padding: .75rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+}
+.save-pips { display: flex; gap: .35rem; }
+.save-pip {
+  width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  transition: background .15s;
+}
+.save-pip.success.filled { background: var(--success); border-color: var(--success); }
+.save-pip.failure.filled { background: var(--danger); border-color: var(--danger); }
+
+/* ── Spinner ─────────────────────────────────────────────────────────────── */
+
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  margin: 3rem auto;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Misc ────────────────────────────────────────────────────────────────── */
+
+.divider { height: 1px; background: var(--border); margin: 1.25rem 0; }
+
+.bonus-list { display: flex; flex-wrap: wrap; gap: .4rem; }
+.bonus-pill {
+  background: var(--card);
+  border: 1px solid var(--accent-dim);
+  border-radius: 20px;
+  padding: .2rem .7rem;
+  font-size: .78rem;
+  color: var(--accent);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+}
+.empty-state h2 { color: var(--accent); margin-bottom: .5rem; }
+
+/* ── Sheet Tab Nav ───────────────────────────────────────────────────────── */
+
+.sheet-tab-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 1.25rem;
+}
+
+.sheet-tab {
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  padding: .6rem 1.25rem;
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+  letter-spacing: .02em;
+}
+
+.sheet-tab:hover { color: var(--text-light); }
+.sheet-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
