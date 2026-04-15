@@ -1,4 +1,4 @@
-import { SKILLS, ABILITIES, PROFICIENCY_BONUS_BY_LEVEL, SPELLCASTING_ABILITY } from './constants';
+import { SKILLS, ABILITIES, PROFICIENCY_BONUS_BY_LEVEL, SPELLCASTING_ABILITY, CONDITIONS } from './constants';
 
 // ─── Primitives ──────────────────────────────────────────────────────────────
 
@@ -68,7 +68,11 @@ export function getInitiative(character, eff) {
 }
 
 export function getSpeed(character) {
-  return (character.race?.speed ?? 30) + (character.overrides.speed ?? 0);
+  let speed = (character.race?.speed ?? 30) + (character.overrides.speed ?? 0);
+  const conds = character.conditionFlags ?? [];
+  if (conds.some(c => CONDITIONS[c]?.speedZero))   return 0;
+  if (conds.some(c => CONDITIONS[c]?.speedHalved))  return Math.floor(speed / 2);
+  return speed;
 }
 
 export function getPassivePerception(character, eff) {
@@ -123,6 +127,13 @@ export function getCurrentWeight(character) {
 export function deriveAll(character) {
   const effectiveAbilityScores = getEffectiveAbilityScores(character);
   const proficiencyBonus       = getProficiencyBonus(character.class.level);
+  const activeConditions       = character.conditionFlags ?? [];
+  const conditionEffects = {
+    hasAttackDisadvantage:       activeConditions.some(c => CONDITIONS[c]?.attackDisadvantage),
+    hasSkillDisadvantage:        activeConditions.some(c => CONDITIONS[c]?.skillDisadvantage),
+    hasSaveDisadvantage:         activeConditions.some(c => CONDITIONS[c]?.saveDisadvantage),
+    grantsAdvantageToAttackers:  activeConditions.some(c => CONDITIONS[c]?.grantsAdvantageToAttackers),
+  };
 
   const modifiers = {};
   for (const a of ABILITIES) {
@@ -145,6 +156,7 @@ export function deriveAll(character) {
     modifiers,
     skills,
     savingThrows,
+    conditionEffects,
     ac:                  getAC(character, effectiveAbilityScores),
     initiative:          getInitiative(character, effectiveAbilityScores),
     speed:               getSpeed(character),

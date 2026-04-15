@@ -5,15 +5,19 @@ import { fetchFeature, fetchTrait, fetchFeat } from '../../api/dndApi';
 export default function FeaturesPanel() {
   const features  = useCharacterStore(s => s.character.features);
   const feats     = useCharacterStore(s => s.character.feats);
+  const homebrew  = useCharacterStore(s => s.character.homebrew);
   const level     = useCharacterStore(s => s.character.class.level);
   const className  = useCharacterStore(s => s.character.class.name);
   const raceName   = useCharacterStore(s => s.character.race.name);
 
-  const hasRacial = features.racial.length > 0;
-  const hasClass  = features.class.length > 0;
-  const hasFeats  = feats.length > 0;
+  const hasRacial   = features.racial.length > 0;
+  const hasClass    = features.class.length > 0;
+  const hasFeats    = feats.length > 0;
+  const hasHomebrew = (homebrew?.features ?? []).length > 0;
 
-  if (!hasRacial && !hasClass && !hasFeats) return null;
+  if (!hasRacial && !hasClass && !hasFeats && !hasHomebrew) return null;
+
+  const homebrewItems = (homebrew?.features ?? []).map(f => ({ id: f.id, label: f.name, desc: f.desc }));
 
   return (
     <div className="sheet-section">
@@ -47,6 +51,16 @@ export default function FeaturesPanel() {
           style={{ marginTop: (hasRacial || hasClass) ? '.75rem' : 0 }}
         />
       )}
+
+      {hasHomebrew && (
+        <FeatureGroup
+          title="Custom Features"
+          items={homebrewItems}
+          accentColor="var(--warning)"
+          fetchDesc={null}
+          style={{ marginTop: (hasRacial || hasClass || hasFeats) ? '.75rem' : 0 }}
+        />
+      )}
     </div>
   );
 }
@@ -75,7 +89,8 @@ function FeatureGroup({ title, items, accentColor, fetchDesc, style = {} }) {
 
 function FeatureRow({ feature, accentColor, fetchDesc }) {
   const [expanded, setExpanded] = useState(false);
-  const [desc, setDesc]         = useState(null);   // null = not loaded, '' = loaded but empty
+  // Initialise with inline desc if provided (homebrew features), else null = not yet fetched
+  const [desc, setDesc]         = useState(feature.desc ?? null);
   const [loading, setLoading]   = useState(false);
 
   function handleToggle() {

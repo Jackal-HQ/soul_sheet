@@ -1,23 +1,27 @@
 import { useState } from 'react';
 import useCharacterStore from '../../store/characterStore';
 import { formatModifier } from '../../utils/format';
+import useUIStore from '../../store/uiStore';
 
 export default function CombatStats() {
-  const derived    = useCharacterStore(s => s.derived);
-  const hp         = useCharacterStore(s => s.character.hp);
-  const deathSaves = useCharacterStore(s => s.character.deathSaves);
+  const derived          = useCharacterStore(s => s.derived);
+  const hp               = useCharacterStore(s => s.character.hp);
+  const deathSaves       = useCharacterStore(s => s.character.deathSaves);
+  const conditionEffects = useCharacterStore(s => s.derived.conditionEffects);
+  const roll             = useUIStore(s => s.roll);
 
-  const applyDamage       = useCharacterStore(s => s.applyDamage);
-  const heal              = useCharacterStore(s => s.heal);
-  const setHP             = useCharacterStore(s => s.setHP);
-  const addDeathSave      = useCharacterStore(s => s.addDeathSave);
-  const resetDeathSaves   = useCharacterStore(s => s.resetDeathSaves);
+  const applyDamage     = useCharacterStore(s => s.applyDamage);
+  const heal            = useCharacterStore(s => s.heal);
+  const setHP           = useCharacterStore(s => s.setHP);
+  const addDeathSave    = useCharacterStore(s => s.addDeathSave);
+  const resetDeathSaves = useCharacterStore(s => s.resetDeathSaves);
 
-  const [dmgInput, setDmgInput] = useState('');
+  const [dmgInput,  setDmgInput]  = useState('');
   const [healInput, setHealInput] = useState('');
 
-  const pct = hp.max > 0 ? (hp.current / hp.max) * 100 : 0;
+  const pct      = hp.max > 0 ? (hp.current / hp.max) * 100 : 0;
   const barClass = pct <= 25 ? 'critical' : pct <= 50 ? 'low' : '';
+  const hasAttackDisadv = conditionEffects?.hasAttackDisadvantage ?? false;
 
   function commit(action) {
     const n = parseInt(action === 'dmg' ? dmgInput : healInput, 10);
@@ -30,7 +34,19 @@ export default function CombatStats() {
     <div>
       {/* Top stats */}
       <div className="sheet-section">
-        <div className="sheet-section-title">Combat</div>
+        <div className="flex-between" style={{ marginBottom: '.6rem' }}>
+          <div className="sheet-section-title" style={{ marginBottom: 0 }}>Combat</div>
+          {hasAttackDisadv && (
+            <span style={{
+              fontSize: '.65rem', fontWeight: 700, color: 'var(--danger)',
+              textTransform: 'uppercase', letterSpacing: '.06em',
+              background: 'rgba(248,113,113,.12)', border: '1px solid var(--danger)',
+              borderRadius: 4, padding: '.1rem .4rem',
+            }}>
+              Atk Disadv.
+            </span>
+          )}
+        </div>
         <div className="combat-grid">
           <div className="combat-box">
             <div className="val">{derived.proficiencyBonus >= 0 ? `+${derived.proficiencyBonus}` : derived.proficiencyBonus}</div>
@@ -40,9 +56,14 @@ export default function CombatStats() {
             <div className="val">{derived.ac}</div>
             <div className="lbl">Armor Class</div>
           </div>
-          <div className="combat-box">
+          <div
+            className="combat-box"
+            style={{ cursor: 'pointer' }}
+            title={`Roll Initiative (${formatModifier(derived.initiative)})${hasAttackDisadv ? ' — Disadvantage' : ''}`}
+            onClick={() => roll({ label: 'Initiative', bonus: derived.initiative, disadvantage: hasAttackDisadv })}
+          >
             <div className="val">{formatModifier(derived.initiative)}</div>
-            <div className="lbl">Initiative</div>
+            <div className="lbl">Initiative 🎲</div>
           </div>
           <div className="combat-box">
             <div className="val">{derived.speed}</div>
@@ -59,9 +80,14 @@ export default function CombatStats() {
             </div>
           )}
           {derived.spellAttackBonus !== null && (
-            <div className="combat-box">
+            <div
+              className="combat-box"
+              style={{ cursor: 'pointer' }}
+              title={`Roll Spell Attack (${formatModifier(derived.spellAttackBonus)})${hasAttackDisadv ? ' — Disadvantage' : ''}`}
+              onClick={() => roll({ label: 'Spell Attack', bonus: derived.spellAttackBonus, disadvantage: hasAttackDisadv })}
+            >
               <div className="val">{formatModifier(derived.spellAttackBonus)}</div>
-              <div className="lbl">Spell Atk</div>
+              <div className="lbl">Spell Atk 🎲</div>
             </div>
           )}
         </div>
