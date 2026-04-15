@@ -564,3 +564,43 @@ select.input { cursor: pointer; }
 
 .sheet-tab:hover { color: var(--text-light); }
 .sheet-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Combat box hover (clickable rolls) ──────────────────────────────────── */
+
+.combat-box[style*="cursor: pointer"]:hover {
+  background: var(--card-hover);
+  border-color: var(--accent-dim);
+}
+
+/* ── Stat row hover (clickable rolls) ────────────────────────────────────── */
+
+.stat-row[style*="cursor: pointer"]:hover {
+  background: rgba(200,151,62,.06);
+  border-radius: 4px;
+}
+
+/* ── Modal backdrop ──────────────────────────────────────────────────────── */
+
+@keyframes fade-in { from { opacity: 0 } to { opacity: 1 } }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: rgba(0,0,0,.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fade-in .15s;
+}
+
+.modal-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.5);
+}

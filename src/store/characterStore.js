@@ -65,6 +65,10 @@ export const BLANK_CHARACTER = {
     class: [],   // [{ id, label, level, category:'class' }]
   },
   feats: [],     // [{ id, label }]
+  homebrew: {
+    spells:   [],  // [{ id, name, level, school, castTime, range, duration, concentration, ritual, desc }]
+    features: [],  // [{ id, name, type, desc }]  type: 'class' | 'racial' | 'feat'
+  },
 };
 
 // ─── Store ───────────────────────────────────────────────────────────────────
@@ -151,6 +155,32 @@ const useCharacterStore = create((set, get) => ({
 
   removeFeat: (featId) =>
     get()._update((c) => ({ ...c, feats: c.feats.filter((f) => f.id !== featId) })),
+
+  // ── Homebrew ──────────────────────────────────────────────────────────────
+
+  addHomebrewSpell: (spell) =>
+    get()._update((c) => ({
+      ...c,
+      homebrew: { ...c.homebrew, spells: [...(c.homebrew?.spells ?? []), spell] },
+    })),
+
+  removeHomebrewSpell: (id) =>
+    get()._update((c) => ({
+      ...c,
+      homebrew: { ...c.homebrew, spells: (c.homebrew?.spells ?? []).filter(s => s.id !== id) },
+    })),
+
+  addHomebrewFeature: (feature) =>
+    get()._update((c) => ({
+      ...c,
+      homebrew: { ...c.homebrew, features: [...(c.homebrew?.features ?? []), feature] },
+    })),
+
+  removeHomebrewFeature: (id) =>
+    get()._update((c) => ({
+      ...c,
+      homebrew: { ...c.homebrew, features: (c.homebrew?.features ?? []).filter(f => f.id !== id) },
+    })),
 
   // ── Proficiencies ─────────────────────────────────────────────────────────
 

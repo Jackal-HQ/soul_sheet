@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import useCharacterStore   from '../store/characterStore';
 import CharacterPdf        from '../components/CharacterPdf';
+import DiceToast           from '../components/DiceToast';
 import AbilityScoresPanel  from '../components/sheet/AbilityScoresPanel';
 import SavingThrowsPanel   from '../components/sheet/SavingThrowsPanel';
 import SkillsPanel         from '../components/sheet/SkillsPanel';
 import CombatStats         from '../components/sheet/CombatStats';
 import FeaturesPanel       from '../components/sheet/FeaturesPanel';
+import LevelUpWizard       from '../components/sheet/LevelUpWizard';
+import HomebrewPanel       from '../components/sheet/HomebrewPanel';
 import InventoryPanel      from '../components/sheet/InventoryPanel';
 import SpellsPanel         from '../components/sheet/SpellsPanel';
 import { CONDITIONS }      from '../store/constants';
@@ -17,7 +20,8 @@ export default function CharacterSheet() {
   const character = useCharacterStore(s => s.character);
   const derived   = useCharacterStore(s => s.derived);
   const { meta, race, class: cls } = character;
-  const [tab, setTab] = useState('overview');
+  const [tab,         setTab]         = useState('overview');
+  const [showLevelUp, setShowLevelUp] = useState(false);
 
   if (!meta.name && !race.id && !cls.id) {
     return (
@@ -39,11 +43,26 @@ export default function CharacterSheet() {
     <div className="page">
       <div className="container">
 
+        {/* Global dice roll overlay */}
+        <DiceToast />
+
+        {/* Level-up wizard modal */}
+        {showLevelUp && <LevelUpWizard onClose={() => setShowLevelUp(false)} />}
+
         {/* Header */}
         <div className="sheet-header" style={{ marginBottom: '1rem' }}>
           <div className="flex-between">
             <h1>{meta.name || 'Unnamed Character'}</h1>
-            <div style={{ display: 'flex', gap: '.5rem' }}>
+            <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              {cls.id && cls.level < 20 && (
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setShowLevelUp(true)}
+                  style={{ color: 'var(--accent)', borderColor: 'var(--accent-dim)' }}
+                >
+                  ↑ Level Up
+                </button>
+              )}
               <PDFDownloadLink
                 document={<CharacterPdf character={character} derived={derived} />}
                 fileName={`${meta.name || 'character'}.pdf`}
@@ -74,7 +93,7 @@ export default function CharacterSheet() {
 
         {/* Tab Nav */}
         <div className="sheet-tab-nav">
-          {['overview', 'inventory', 'spells'].map(t => (
+          {['overview', 'inventory', 'spells', 'homebrew'].map(t => (
             <button
               key={t}
               className={`sheet-tab${tab === t ? ' active' : ''}`}
@@ -115,6 +134,13 @@ export default function CharacterSheet() {
           </div>
         )}
 
+        {/* Homebrew */}
+        {tab === 'homebrew' && (
+          <div style={{ maxWidth: 680 }}>
+            <HomebrewPanel />
+          </div>
+        )}
+
       </div>
     </div>
   );
@@ -132,10 +158,23 @@ function ConditionTracker() {
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.4rem' }}>
         {Object.entries(CONDITIONS).map(([id, def]) => {
           const active = conditionFlags.includes(id);
+          const effects = [
+            def.attackDisadvantage         && 'Disadv. on attacks',
+            def.skillDisadvantage          && 'Disadv. on skill checks',
+            def.saveDisadvantage           && 'Disadv. on saves',
+            def.speedHalved                && 'Speed halved',
+            def.speedZero                  && 'Speed → 0',
+            def.cannotAct                  && 'Cannot take actions',
+            def.grantsAdvantageToAttackers && 'Attackers have Adv.',
+            def.autoFailStrDex             && 'Auto-fail STR/DEX saves',
+            def.hpMaxHalved                && 'HP max halved',
+            def.dead                       && 'Character dies',
+          ].filter(Boolean).join(' · ');
           return (
             <button
               key={id}
               onClick={() => toggleCondition(id)}
+              title={effects || undefined}
               style={{
                 padding: '.3rem .7rem',
                 borderRadius: 20,
