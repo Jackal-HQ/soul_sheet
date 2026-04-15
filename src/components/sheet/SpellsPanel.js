@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { fetchSpell } from '../../api/dndApi';
+import { fetchSpell, fetchSpellsByClass } from '../../api/dndApi';
 import useCharacterStore from '../../store/characterStore';
 import { formatModifier } from '../../utils/format';
 
@@ -40,13 +40,13 @@ export default function SpellsPanel() {
 
   // Load spell list for the selected class
   useEffect(() => {
-    if (!classId) return;
+    if (!classId || !className) return;
     setBrowseLoading(true);
-    fetch(`https://www.dnd5eapi.co/api/classes/${classId}/spells`)
-      .then(r => r.json())
-      .then(d => setClassSpells(d.results ?? []))
+    fetchSpellsByClass(className)
+      .then(setClassSpells)
       .catch(console.error)
       .finally(() => setBrowseLoading(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [classId]);
 
   function toggleExpand(spell) {
